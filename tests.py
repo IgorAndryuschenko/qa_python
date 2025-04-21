@@ -1,5 +1,7 @@
 import pytest
+from helper import *
 from main import BooksCollector
+from test_data import test_books_data
 
 
 class TestBooksCollector:
@@ -27,9 +29,14 @@ class TestBooksCollector:
         list_name = collector.get_books_genre()
         assert 0 == len(list_name)
 
-    def test_set_book_genre_not_name(self, add_one_book_and_set_valid_genre):
-        add_one_book_and_set_valid_genre.set_book_genre('Драко Малфой', 'Фантастика')
-        genre_draco = add_one_book_and_set_valid_genre.get_book_genre('Драко Малфой')
+    def test_set_book_genre_valid_data(self, collector):
+        add_one_book_and_set_valid_genre(collector)
+        assert collector.books_genre['Гарри Поттер'] == 'Фантастика'
+
+    def test_set_book_genre_not_name(self, collector):
+        collector.add_new_book('Гарри Поттер')
+        collector.set_book_genre('Драко Малфой', 'Фантастика')
+        genre_draco = collector.get_book_genre('Драко Малфой')
         assert None == genre_draco
 
     def test_set_book_genre_not_valid_genre(self, collector):
@@ -38,33 +45,40 @@ class TestBooksCollector:
         genre_gp = collector.get_book_genre('Гарри Поттер')
         assert '' == genre_gp
 
-    def test_get_book_genre(self, add_one_book_and_set_valid_genre):
-        genre_gp = add_one_book_and_set_valid_genre.get_book_genre('Гарри Поттер')
+    def test_get_book_genre_valid_data(self, collector):
+        collector.add_new_book('Гарри Поттер')
+        collector.books_genre['Гарри Поттер'] = 'Фантастика'
+        genre_gp = collector.get_book_genre('Гарри Поттер')
         assert genre_gp == 'Фантастика'
 
-
-    def test_get_books_with_specific_genre(self, collector_with_books):
-        list_fantasy = collector_with_books.get_books_with_specific_genre("Фантастика")
+    def test_get_books_with_specific_genre(self,collector):
+        collector_with_books(collector)
+        list_fantasy = collector.get_books_with_specific_genre("Фантастика")
         assert 'Гарри Поттер' in list_fantasy and 'Песнь льда и пламени' in list_fantasy
 
-    def test_get_books_genre(self, add_one_book_and_set_valid_genre):
-        list_books_genre = add_one_book_and_set_valid_genre.get_books_genre()
+    def test_get_books_genre(self, collector):
+        add_one_book_and_set_valid_genre(collector)
+        list_books_genre = collector.get_books_genre()
         assert {'Гарри Поттер':'Фантастика'} == list_books_genre
 
-    def test_get_books_for_children(self, collector_with_books):
-        list_for_kids = collector_with_books.get_books_for_children()
+    def test_get_books_for_children(self, collector):
+        collector_with_books(collector)
+        list_for_kids = collector.get_books_for_children()
         assert 'Гарри Поттер' in list_for_kids and 'Песнь льда и пламени' in list_for_kids and 'Лунтик' in list_for_kids
 
-    def test_add_book_in_favorites_add_one(self, add_one_book_and_set_valid_genre):
-        assert len(add_one_book_and_set_valid_genre.get_list_of_favorites_books()) == 1
+    def test_add_book_in_favorites_add_one(self,collector):
+        add_one_book_and_add_in_favorites(collector)
+        assert len(collector.favorites) == 1
 
-    def test_delete_book_from_favorites(self, add_one_book_and_set_valid_genre):
-        add_one_book_and_set_valid_genre.add_book_in_favorites('Лунтик')
-        add_one_book_and_set_valid_genre.delete_book_from_favorites('Лунтик')
-        list_book_in_favorites = add_one_book_and_set_valid_genre.get_list_of_favorites_books()
+    def test_delete_book_from_favorites(self, collector):
+        add_one_book_and_add_in_favorites(collector)
+        collector.add_book_in_favorites('Лунтик')
+        collector.delete_book_from_favorites('Лунтик')
+        list_book_in_favorites = collector.get_list_of_favorites_books()
         assert list_book_in_favorites == ['Гарри Поттер']
 
-    def test_get_list_of_favorites_books(self, add_one_book_and_set_valid_genre):
-        list_book_in_favorites = add_one_book_and_set_valid_genre.get_list_of_favorites_books()
+    def test_get_list_of_favorites_books(self, collector):
+        add_one_book_and_add_in_favorites(collector)
+        list_book_in_favorites = collector.get_list_of_favorites_books()
         assert 'Гарри Поттер' in list_book_in_favorites
 
